@@ -13,17 +13,14 @@
         }
 
         body {
-            font-family: 'Lato', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             line-height: 1.6;
             background-color: #f0f5f9;
             min-height: 100vh;
-            display: flex;
-            overflow-x: hidden;
         }
 
-        /* Mobile-first sidebar styles */
         .sidebar {
-            width: 60px;
+            width: 65px;
             background-color: #19171D;
             height: 100vh;
             position: fixed;
@@ -32,42 +29,24 @@
             padding: 10px 0;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
+            transition: width 0.3s ease;
             z-index: 1000;
         }
 
-        .sidebar-item {
-            padding: 12px 16px;
-            margin: 4px 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            color: #CFC7C0;
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
-            overflow: hidden;
-            transition: all 0.2s ease;
-        }
-
-        /* Main content styles */
         .main-content {
-            margin-left: 60px;
-            flex: 1;
-            padding: 10px;
-            width: calc(100% - 60px);
-            transition: margin-left 0.3s ease;
+            margin-left: 65px;
+            padding: 20px;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 10px;
-            width: 100%;
+            padding: 20px;
         }
 
         .search-container {
             background-color: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin-bottom: 20px;
@@ -77,86 +56,145 @@
         h1 {
             color: #1a5f7a;
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 2em;
+            margin-bottom: 30px;
+            font-size: 2.5em;
         }
 
         .search-box {
             position: relative;
             margin: 0 auto;
             max-width: 600px;
-            width: 100%;
         }
 
         .search-input {
             width: 100%;
-            padding: 12px 40px 12px 15px;
+            padding: 15px 50px 15px 20px;
             font-size: 16px;
             border: 2px solid #3498db;
             border-radius: 25px;
             outline: none;
+            transition: all 0.3s;
         }
 
-        /* Mobile specific styles */
+        .search-input:focus {
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #3498db;
+            padding: 10px;
+        }
+
+        .results-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .search-result {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .search-result:last-child {
+            border-bottom: none;
+        }
+
+        .result-title {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 8px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .result-title:hover {
+            text-decoration: underline;
+        }
+
+        .result-url {
+            color: #27ae60;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .result-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            display: none;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 50px;
             }
 
-            .sidebar:hover {
-                width: 200px;
-            }
-
             .main-content {
                 margin-left: 50px;
-                width: calc(100% - 50px);
-                padding: 5px;
+                padding: 10px;
             }
 
             .container {
-                padding: 5px;
+                padding: 10px;
             }
 
             h1 {
-                font-size: 1.5em;
-                margin-bottom: 15px;
+                font-size: 2em;
             }
 
             .search-container {
-                padding: 15px;
-            }
-
-            .add-user-btn {
-                top: 10px;
-                right: 10px;
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-
-            .modal-content {
-                width: 95%;
                 padding: 20px;
-                margin: 10px;
             }
-        }
-
-        /* Modal and form styles remain the same, just add responsiveness */
-        .modal-content {
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .signup-form {
-            gap: 12px;
-        }
-
-        .form-group input {
-            width: 100%;
         }
     </style>
 </head>
 <body>
-    <!-- Your existing HTML structure remains the same -->
+    <div class="sidebar">
+        <!-- Sidebar content here -->
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="search-container">
+                <h1>Web Search</h1>
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Enter your search query..." id="searchInput">
+                    <button class="search-button" id="searchButton">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="loading" id="loading">Searching...</div>
+            <div class="error-message" id="error"></div>
+            <div class="results-container" id="resultsContainer"></div>
+        </div>
+    </main>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
@@ -164,26 +202,18 @@
             const resultsContainer = document.getElementById('resultsContainer');
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
-            const errorDetails = document.getElementById('errorDetails');
 
             async function performSearch(query) {
                 const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
                 const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || data.details || 'Search failed');
-                }
-                
+                if (!response.ok) throw new Error(data.error || 'Search failed');
                 return data;
             }
 
             function displayResults(results) {
                 resultsContainer.innerHTML = '';
                 if (!results || results.length === 0) {
-                    const noResults = document.createElement('div');
-                    noResults.className = 'search-result';
-                    noResults.textContent = 'No results found.';
-                    resultsContainer.appendChild(noResults);
+                    resultsContainer.innerHTML = '<div class="search-result">No results found.</div>';
                     return;
                 }
 
@@ -205,7 +235,6 @@
 
                 loading.style.display = 'block';
                 error.style.display = 'none';
-                errorDetails.textContent = '';
                 resultsContainer.innerHTML = '';
 
                 try {
@@ -215,7 +244,7 @@
                 } catch (err) {
                     loading.style.display = 'none';
                     error.style.display = 'block';
-                    errorDetails.textContent = err.message;
+                    error.textContent = err.message;
                     console.error('Search error:', err);
                 }
             }
@@ -226,17 +255,7 @@
                     startSearch();
                 }
             });
-
-            // Handle initial search from URL if present
-            const urlParams = new URLSearchParams(window.location.search);
-            const initialQuery = urlParams.get('q');
-            if (initialQuery) {
-                searchInput.value = initialQuery;
-                startSearch();
-            }
         });
-
-        // Your existing modal and sidebar JavaScript code remains the same
     </script>
 </body>
 </html>
