@@ -2,11 +2,18 @@ export default async function handler(req, res) {
   const { query } = req.query;
   
   if (!query) {
+    console.log('No query provided');
     return res.status(400).json({ error: 'Query parameter is required' });
   }
 
+  console.log('Starting search with query:', query);
+  console.log('Checking BRAVE_API_KEY:', process.env.BRAVE_API_KEY ? 'Present' : 'Missing');
+
   try {
-    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}`, {
+    const searchUrl = `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}`;
+    console.log('Making request to:', searchUrl);
+
+    const response = await fetch(searchUrl, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -14,14 +21,25 @@ export default async function handler(req, res) {
       }
     });
 
+    console.log('Response status:', response.status);
+    
     if (!response.ok) {
-      throw new Error('Search API request failed');
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      throw new Error(`Search API request failed with status ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
-    const webResults = data.web.results;
+    console.log('Received data structure:', Object.keys(data));
 
-    // Process results into a Claude-like response
+    if (!data.web?.results) {
+      console.log('No web results in response:', data);
+      throw new Error('No web results found in API response');
+    }
+
+    const webResults = data.web.results;
+    console.log('Number of results:', webResults.length);
+
     const processedResponse = {
       summary: generateSummary(webResults, query),
       detailedResponse: generateDetailedResponse(webResults),
@@ -34,28 +52,28 @@ export default async function handler(req, res) {
     return res.status(200).json(processedResponse);
 
   } catch (error) {
-    console.error('Search error:', error);
-    return res.status(500).json({ error: 'Failed to perform search' });
+    console.error('Detailed search error:', error);
+    console.error('Error stack:', error.stack);
+    return res.status(500).json({ 
+      error: 'Failed to perform search',
+      details: error.message 
+    });
   }
 }
 
 function generateSummary(results, query) {
-  // Extract main points from top results
   const topResults = results.slice(0, 3);
   const mainPoints = topResults.map(result => result.description).join(' ');
   
-  // Clean and format the text
   const cleanText = mainPoints
-    .replace(/(<([^>]+)>)/gi, '') // Remove HTML tags
-    .replace(/\s+/g, ' ') // Remove extra whitespace
+    .replace(/(<([^>]+)>)/gi, '')
+    .replace(/\s+/g, ' ')
     .trim();
 
-  // Create a conversational opening
   return `Based on the search results for "${query}", ${cleanText}`;
 }
 
 function generateDetailedResponse(results) {
-  // Group information by themes/topics
   const themes = {};
   
   results.forEach(result => {
@@ -63,13 +81,11 @@ function generateDetailedResponse(results) {
       .replace(/(<([^>]+)>)/gi, '')
       .trim();
 
-    // Extract key information
     const info = {
       content: cleanDescription,
       source: result.title
     };
 
-    // Simple topic extraction (can be enhanced with NLP)
     const words = result.title.toLowerCase().split(' ');
     const topic = words[0];
 
@@ -79,7 +95,6 @@ function generateDetailedResponse(results) {
     themes[topic].push(info);
   });
 
-  // Format detailed response sections
   const sections = Object.entries(themes).map(([topic, infos]) => ({
     topic: topic.charAt(0).toUpperCase() + topic.slice(1),
     content: infos.map(info => info.content).join(' '),
