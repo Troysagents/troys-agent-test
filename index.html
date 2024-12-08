@@ -62,6 +62,12 @@
             transform: translateX(5px);
             border-left-width: 8px;
         }
+        .feature-list li mark {
+            background-color: #fff3cd;
+            padding: 2px 0;
+            border-radius: 2px;
+            transition: background-color 0.3s;
+        }
         .highlight {
             background-color: #e3f2fd;
             padding: 20px;
@@ -72,11 +78,12 @@
         .search-container {
             margin: 20px 0;
             text-align: center;
+            position: relative;
         }
         .search-input {
             width: 100%;
             max-width: 400px;
-            padding: 12px;
+            padding: 12px 40px 12px 20px;
             border: 2px solid #3498db;
             border-radius: 25px;
             font-size: 16px;
@@ -85,6 +92,14 @@
         }
         .search-input:focus {
             box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        .search-icon {
+            position: absolute;
+            right: 50%;
+            top: 50%;
+            transform: translate(190px, -50%);
+            color: #3498db;
+            pointer-events: none;
         }
         .hidden {
             display: none;
@@ -95,6 +110,19 @@
             font-style: italic;
             padding: 20px;
             display: none;
+        }
+        .match-count {
+            position: absolute;
+            right: 50%;
+            top: -20px;
+            transform: translateX(200px);
+            font-size: 14px;
+            color: #666;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .match-count.visible {
+            opacity: 1;
         }
     </style>
 </head>
@@ -109,6 +137,8 @@
             <h2>Features</h2>
             <div class="search-container">
                 <input type="text" class="search-input" placeholder="Search features..." id="searchInput">
+                <div class="search-icon">🔍</div>
+                <div class="match-count" id="matchCount"></div>
             </div>
             <ul class="feature-list" id="featureList">
                 <li>Responsive and interactive design</li>
@@ -119,6 +149,8 @@
                 <li>Real-time search functionality</li>
                 <li>Smooth transitions and effects</li>
                 <li>Mobile-friendly layout</li>
+                <li>Intelligent search highlighting</li>
+                <li>Dynamic content filtering</li>
             </ul>
             <div class="no-results" id="noResults">No features found matching your search.</div>
         </section>
@@ -132,23 +164,60 @@
             const searchInput = document.getElementById('searchInput');
             const featureList = document.getElementById('featureList');
             const noResults = document.getElementById('noResults');
+            const matchCount = document.getElementById('matchCount');
             const features = featureList.getElementsByTagName('li');
+            let originalTexts = Array.from(features).map(feature => feature.textContent);
+
+            function highlightText(text, searchTerm) {
+                if (!searchTerm) return text;
+                
+                const searchTerms = searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
+                let highlightedText = text;
+                
+                searchTerms.forEach(term => {
+                    const regex = new RegExp(`(${term})`, 'gi');
+                    highlightedText = highlightedText.replace(regex, '<mark>$1</mark>');
+                });
+                
+                return highlightedText;
+            }
+
+            function updateMatchCount(count, total) {
+                if (!searchInput.value) {
+                    matchCount.classList.remove('visible');
+                    return;
+                }
+                matchCount.textContent = `${count} of ${total} matches`;
+                matchCount.classList.add('visible');
+            }
 
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase();
-                let hasVisibleItems = false;
+                let visibleCount = 0;
 
-                Array.from(features).forEach(feature => {
-                    const text = feature.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
+                Array.from(features).forEach((feature, index) => {
+                    const originalText = originalTexts[index];
+                    const text = originalText.toLowerCase();
+                    
+                    if (searchTerm === '') {
                         feature.classList.remove('hidden');
-                        hasVisibleItems = true;
+                        feature.innerHTML = originalText;
                     } else {
-                        feature.classList.add('hidden');
+                        const searchTerms = searchTerm.split(' ').filter(term => term.length > 0);
+                        const matches = searchTerms.some(term => text.includes(term));
+                        
+                        if (matches) {
+                            feature.classList.remove('hidden');
+                            feature.innerHTML = highlightText(originalText, searchTerm);
+                            visibleCount++;
+                        } else {
+                            feature.classList.add('hidden');
+                        }
                     }
                 });
 
-                noResults.style.display = hasVisibleItems ? 'none' : 'block';
+                noResults.style.display = visibleCount === 0 && searchTerm !== '' ? 'block' : 'none';
+                updateMatchCount(visibleCount, features.length);
             });
         });
     </script>
