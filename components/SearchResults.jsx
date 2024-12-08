@@ -87,6 +87,3 @@ const SearchResults = ({ results, isLoading }) => {
 };
 
 export default SearchResults;
-    </div>
-  );
-}
