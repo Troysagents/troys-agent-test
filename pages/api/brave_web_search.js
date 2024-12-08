@@ -1,78 +1,87 @@
 export default async function handler(req, res) {
   try {
-    // 1. Log initial request info
-    console.log('Starting API request handler');
     const { query } = req.query;
-    console.log('Received query:', query);
 
-    // 2. Validate API key
-    if (!process.env.BRAVE_API_KEY) {
-      console.error('BRAVE_API_KEY not found in environment');
-      throw new Error('API key not configured');
+    // Validate API key
+    if (!process.env.BRAVE_API_KEY || !process.env.BRAVE_API_KEY.startsWith('BSA')) {
+      throw new Error('Invalid API key configuration');
     }
 
-    // 3. Validate query
+    // Validate query
     if (!query) {
-      console.error('No search query provided');
-      throw new Error('Search query is required');
+      return res.status(400).json({ error: 'Query parameter is required' });
     }
 
-    // 4. Make request to Brave
-    const searchUrl = `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}`;
-    console.log('Making request to Brave API');
-    
-    const response = await fetch(searchUrl, {
+    // Make request to Brave
+    const response = await fetch('https://api.search.brave.com/res/v1/web/search', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
+        'Content-Type': 'application/json',
         'X-Subscription-Token': process.env.BRAVE_API_KEY
+      },
+      params: {
+        q: query
       }
     });
 
-    // 5. Check response
-    console.log('Brave API response status:', response.status);
-    
+    // Handle API response
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Brave API error response:', errorText);
-      throw new Error(`Brave API error: ${response.status} - ${errorText}`);
+      throw new Error(`Brave API error: ${response.status}`);
     }
 
-    // 6. Parse response
     const data = await response.json();
-    console.log('Successfully received data from Brave');
-
-    // 7. Validate data structure
+    
     if (!data.web?.results) {
-      console.error('Invalid data structure received:', data);
-      throw new Error('Invalid response format from Brave API');
+      throw new Error('No results found');
     }
 
-    // 8. Process results
     const webResults = data.web.results;
+
+    // Process results into Claude-like format
     const processedResponse = {
-      summary: `Found ${webResults.length} results for "${query}"`,
-      detailedResponse: [{
-        topic: "Results",
-        content: webResults[0].description,
-        sourceCount: webResults.length
-      }],
+      summary: generateSummary(webResults, query),
+      detailedResponse: generateDetailedResponse(webResults),
       sources: webResults.map(result => ({
         title: result.title,
         url: result.url
       }))
     };
 
-    // 9. Send successful response
     return res.status(200).json(processedResponse);
 
   } catch (error) {
-    // 10. Error handling with detailed information
-    console.error('Full error details:', error);
-    return res.status(500).json({
+    console.error('Search error:', error);
+    return res.status(500).json({ 
       error: 'Failed to perform search',
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      details: error.message 
     });
   }
 }
+
+function generateSummary(results, query) {
+  const topResults = results.slice(0, 3);
+  const mainPoints = topResults.map(result => result.description).join(' ');
+  
+  const cleanText = mainPoints
+    .replace(/(<([^>]+)>)/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return `Based on the search results for "${query}", ${cleanText}`;
+}
+
+function generateDetailedResponse(results) {
+  const themes = {};
+  
+  results.forEach(result => {
+    const cleanDescription = result.description
+      .replace(/(<([^>]+)>)/gi, '')
+      .trim();
+
+    const info = {
+      content: cleanDescription,
+      source: result.title
+    };
+
+    const words = result
