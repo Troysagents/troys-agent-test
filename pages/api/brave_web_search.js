@@ -1,74 +1,78 @@
 export default async function handler(req, res) {
-  const { query } = req.query;
-  
-  // Debug logging
-  console.log('API route hit, checking environment...');
-  const keyExists = !!process.env.BRAVE_API_KEY;
-  console.log('API key exists:', keyExists);
-  
-  if (!keyExists) {
-    return res.status(500).json({ 
-      error: 'Configuration error',
-      details: 'API key not found in environment' 
-    });
-  }
-
-  if (!query) {
-    return res.status(400).json({ 
-      error: 'Invalid request',
-      details: 'Query parameter is required' 
-    });
-  }
-
   try {
-    const url = `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}`;
-    console.log('Making request to:', url);
+    // 1. Log initial request info
+    console.log('Starting API request handler');
+    const { query } = req.query;
+    console.log('Received query:', query);
 
-    const apiKey = process.env.BRAVE_API_KEY;
-    console.log('API key length:', apiKey.length);  // Don't log the actual key, just its length
+    // 2. Validate API key
+    if (!process.env.BRAVE_API_KEY) {
+      console.error('BRAVE_API_KEY not found in environment');
+      throw new Error('API key not configured');
+    }
 
-    const response = await fetch(url, {
+    // 3. Validate query
+    if (!query) {
+      console.error('No search query provided');
+      throw new Error('Search query is required');
+    }
+
+    // 4. Make request to Brave
+    const searchUrl = `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}`;
+    console.log('Making request to Brave API');
+    
+    const response = await fetch(searchUrl, {
+      method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-Subscription-Token': apiKey
+        'X-Subscription-Token': process.env.BRAVE_API_KEY
       }
     });
 
-    console.log('Response status:', response.status);
+    // 5. Check response
+    console.log('Brave API response status:', response.status);
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.log('Error response:', errorText);
-      return res.status(response.status).json({
-        error: 'Search API error',
-        details: errorText
-      });
+      console.error('Brave API error response:', errorText);
+      throw new Error(`Brave API error: ${response.status} - ${errorText}`);
     }
 
+    // 6. Parse response
     const data = await response.json();
-    
+    console.log('Successfully received data from Brave');
+
+    // 7. Validate data structure
     if (!data.web?.results) {
-      return res.status(500).json({
-        error: 'Invalid response',
-        details: 'No results found in API response'
-      });
+      console.error('Invalid data structure received:', data);
+      throw new Error('Invalid response format from Brave API');
     }
 
-    return res.status(200).json({
-      summary: 'Test summary',
-      detailedResponse: [],
-      sources: data.web.results.map(result => ({
+    // 8. Process results
+    const webResults = data.web.results;
+    const processedResponse = {
+      summary: `Found ${webResults.length} results for "${query}"`,
+      detailedResponse: [{
+        topic: "Results",
+        content: webResults[0].description,
+        sourceCount: webResults.length
+      }],
+      sources: webResults.map(result => ({
         title: result.title,
         url: result.url
       }))
-    });
+    };
+
+    // 9. Send successful response
+    return res.status(200).json(processedResponse);
 
   } catch (error) {
-    console.error('Full error:', error);
-    return res.status(500).json({ 
-      error: 'Search failed',
-      details: error.message
+    // 10. Error handling with detailed information
+    console.error('Full error details:', error);
+    return res.status(500).json({
+      error: 'Failed to perform search',
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 }
