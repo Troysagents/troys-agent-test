@@ -3,69 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Troy's Test Page</title>
+    <title>Troy's Enhanced Test Page</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 20px;
-            background-color: #f0f0f0;
+            background-color: #e8f4f8;
         }
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         h1 {
-            color: #2c3e50;
+            color: #1a5f7a;
             text-align: center;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
             margin-bottom: 30px;
+            font-size: 2.5em;
         }
         h2 {
-            color: #34495e;
-            border-left: 4px solid #3498db;
-            padding-left: 10px;
+            color: #2c3e50;
+            border-left: 5px solid #3498db;
+            padding-left: 15px;
+            margin-top: 30px;
+            font-size: 1.8em;
         }
         section {
-            margin: 20px 0;
-            padding: 15px;
+            margin: 25px 0;
+            padding: 20px;
             background-color: #f8f9fa;
-            border-radius: 4px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .feature-list {
             list-style-type: none;
             padding: 0;
         }
         .feature-list li {
-            margin: 10px 0;
-            padding: 10px;
+            margin: 15px 0;
+            padding: 15px;
             background-color: white;
-            border-left: 3px solid #3498db;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .feature-list li:hover {
+            transform: translateX(5px);
+            border-left-width: 8px;
+        }
+        .highlight {
+            background-color: #e3f2fd;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .search-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-input:focus {
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        .hidden {
+            display: none;
+        }
+        .no-results {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to Troy's Test Page</h1>
+    <h1>Welcome to Troy's Enhanced Test Page</h1>
     <div class="container">
         <section>
             <h2>About</h2>
-            <p>This page demonstrates a basic HTML structure with enhanced CSS styling and modern design elements.</p>
+            <p>This page showcases advanced HTML structure with sophisticated CSS styling and modern design elements.</p>
         </section>
         <section>
             <h2>Features</h2>
-            <ul class="feature-list">
-                <li>Responsive design</li>
-                <li>Modern color scheme</li>
-                <li>Clean typography</li>
-                <li>Elegant spacing</li>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search features..." id="searchInput">
+            </div>
+            <ul class="feature-list" id="featureList">
+                <li>Responsive and interactive design</li>
+                <li>Modern color scheme with blue accents</li>
+                <li>Enhanced typography and spacing</li>
+                <li>Elegant hover animations</li>
+                <li>Improved visual hierarchy</li>
+                <li>Real-time search functionality</li>
+                <li>Smooth transitions and effects</li>
+                <li>Mobile-friendly layout</li>
             </ul>
+            <div class="no-results" id="noResults">No features found matching your search.</div>
         </section>
+        <div class="highlight">
+            <p>This is a significantly enhanced version with animations, better spacing, and more interactive elements!</p>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const featureList = document.getElementById('featureList');
+            const noResults = document.getElementById('noResults');
+            const features = featureList.getElementsByTagName('li');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                let hasVisibleItems = false;
+
+                Array.from(features).forEach(feature => {
+                    const text = feature.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        feature.classList.remove('hidden');
+                        hasVisibleItems = true;
+                    } else {
+                        feature.classList.add('hidden');
+                    }
+                });
+
+                noResults.style.display = hasVisibleItems ? 'none' : 'block';
+            });
+        });
+    </script>
 </body>
 </html>
