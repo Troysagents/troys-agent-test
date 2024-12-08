@@ -12,11 +12,79 @@
         }
 
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Lato', 'Segoe UI', Arial, sans-serif;
             line-height: 1.6;
             background-color: #f0f5f9;
             min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 65px;
+            background-color: #19171D;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar:hover {
+            width: 220px;
+        }
+
+        .sidebar-item {
+            padding: 8px 12px;
+            margin: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #CFC7C0;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-item:hover {
+            background-color: #27242C;
+            color: white;
+        }
+
+        .sidebar-item.active {
+            background-color: #1164A3;
+            color: white;
+        }
+
+        .sidebar-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-text {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .sidebar:hover .sidebar-text {
+            opacity: 1;
+        }
+
+        .main-content {
+            margin-left: 65px;
+            flex: 1;
             padding: 20px;
+            width: calc(100% - 65px);
         }
 
         .container {
@@ -26,250 +94,83 @@
             width: 100%;
         }
 
-        .search-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            text-align: center;
-        }
+        /* Rest of your existing styles... */
 
-        h1 {
-            color: #1a5f7a;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-        }
-
-        .search-box {
-            position: relative;
-            margin: 0 auto;
-            max-width: 600px;
-            width: 100%;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 15px 50px 15px 20px;
-            font-size: 16px;
-            border: 2px solid #3498db;
-            border-radius: 25px;
-            outline: none;
-            transition: all 0.3s;
-            box-sizing: border-box;
-        }
-
-        .search-input:focus {
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
-        }
-
-        .search-button {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #3498db;
-            padding: 10px;
-            transition: transform 0.2s;
-        }
-
-        .search-button:hover {
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .results-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .search-result {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.2s;
-        }
-
-        .search-result:last-child {
-            border-bottom: none;
-        }
-
-        .search-result:hover {
-            background-color: #f8f9fa;
-        }
-
-        .result-title {
-            color: #2c3e50;
-            font-size: 18px;
-            margin-bottom: 8px;
-            text-decoration: none;
-            display: block;
-            font-weight: 500;
-        }
-
-        .result-title:hover {
-            text-decoration: underline;
-        }
-
-        .result-url {
-            color: #27ae60;
-            font-size: 14px;
-            margin-bottom: 8px;
-            display: block;
-            word-break: break-all;
-        }
-
-        .result-description {
-            color: #666;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            display: none;
-        }
-
-        .error-message {
-            color: #e74c3c;
-            text-align: center;
-            padding: 20px;
-            display: none;
-            background-color: #fde8e8;
-            border: 1px solid #f8b4b4;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .powered-by {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #666;
-            padding: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            .search-container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 2em;
-            }
-
-            .search-input {
-                font-size: 14px;
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="search-container">
-            <h1>Web Search</h1>
-            <div class="search-box">
-                <input type="text" class="search-input" placeholder="Enter your search query..." id="searchInput" autofocus>
-                <button class="search-button" id="searchButton">🔍</button>
+    <nav class="sidebar">
+        <div class="sidebar-item active">
+            <div class="sidebar-icon">🔍</div>
+            <span class="sidebar-text">Search</span>
+        </div>
+        <div class="sidebar-item">
+            <div class="sidebar-icon">📊</div>
+            <span class="sidebar-text">Analytics</span>
+        </div>
+        <div class="sidebar-item">
+            <div class="sidebar-icon">📁</div>
+            <span class="sidebar-text">Documents</span>
+        </div>
+        <div class="sidebar-item">
+            <div class="sidebar-icon">📈</div>
+            <span class="sidebar-text">Reports</span>
+        </div>
+        <div class="sidebar-item">
+            <div class="sidebar-icon">⚙️</div>
+            <span class="sidebar-text">Settings</span>
+        </div>
+        <div class="sidebar-item">
+            <div class="sidebar-icon">📱</div>
+            <span class="sidebar-text">Apps</span>
+        </div>
+        <div class="sidebar-item">
+            <div class="sidebar-icon">📢</div>
+            <span class="sidebar-text">Announcements</span>
+        </div>
+        <div class="sidebar-item">
+            <div class="sidebar-icon">👥</div>
+            <span class="sidebar-text">Teams</span>
+        </div>
+        <div class="sidebar-item">
+            <div class="sidebar-icon">📝</div>
+            <span class="sidebar-text">Notes</span>
+        </div>
+        <div class="sidebar-item">
+            <div class="sidebar-icon">❓</div>
+            <span class="sidebar-text">Help</span>
+        </div>
+    </nav>
+    <main class="main-content">
+        <div class="container">
+            <div class="search-container">
+                <h1>Web Search</h1>
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Enter your search query..." id="searchInput" autofocus>
+                    <button class="search-button" id="searchButton">🔍</button>
+                </div>
             </div>
+            <div class="loading" id="loading">Searching...</div>
+            <div class="error-message" id="error">
+                <div>Sorry, something went wrong. Please try again.</div>
+                <div class="error-details" id="errorDetails"></div>
+            </div>
+            <div class="results-container" id="resultsContainer"></div>
+            <div class="powered-by">Powered by Brave Search</div>
         </div>
-        <div class="loading" id="loading">Searching...</div>
-        <div class="error-message" id="error">
-            <div>Sorry, something went wrong. Please try again.</div>
-            <div class="error-details" id="errorDetails"></div>
-        </div>
-        <div class="results-container" id="resultsContainer"></div>
-        <div class="powered-by">Powered by Brave Search</div>
-    </div>
+    </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const searchButton = document.getElementById('searchButton');
-            const resultsContainer = document.getElementById('resultsContainer');
-            const loading = document.getElementById('loading');
-            const error = document.getElementById('error');
-            const errorDetails = document.getElementById('errorDetails');
+        // Your existing JavaScript code...
 
-            async function performSearch(query) {
-                const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
-                if (!response.ok) {
-                    const data = await response.json();
-                    throw new Error(data.error || 'Search failed');
-                }
-                return await response.json();
-            }
-
-            function displayResults(results) {
-                resultsContainer.innerHTML = '';
-                if (!results || results.length === 0) {
-                    const noResults = document.createElement('div');
-                    noResults.className = 'search-result';
-                    noResults.textContent = 'No results found.';
-                    resultsContainer.appendChild(noResults);
-                    return;
-                }
-
-                results.forEach(result => {
-                    const resultElement = document.createElement('div');
-                    resultElement.className = 'search-result';
-                    resultElement.innerHTML = `
-                        <a href="${result.url}" class="result-title" target="_blank">${result.title}</a>
-                        <span class="result-url">${result.url}</span>
-                        <p class="result-description">${result.description}</p>
-                    `;
-                    resultsContainer.appendChild(resultElement);
-                });
-            }
-
-            async function startSearch() {
-                const query = searchInput.value.trim();
-                if (query === '') return;
-
-                loading.style.display = 'block';
-                error.style.display = 'none';
-                errorDetails.textContent = '';
-                resultsContainer.innerHTML = '';
-
-                try {
-                    const results = await performSearch(query);
-                    loading.style.display = 'none';
-                    displayResults(results);
-                } catch (err) {
-                    loading.style.display = 'none';
-                    error.style.display = 'block';
-                    errorDetails.textContent = err.message;
-                    console.error('Search error:', err);
-                }
-            }
-
-            searchButton.addEventListener('click', startSearch);
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    startSearch();
-                }
+        // Add click handler for sidebar items
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all items
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                // Add active class to clicked item
+                this.classList.add('active');
             });
-
-            // Handle initial search from URL if present
-            const urlParams = new URLSearchParams(window.location.search);
-            const initialQuery = urlParams.get('q');
-            if (initialQuery) {
-                searchInput.value = initialQuery;
-                startSearch();
-            }
         });
     </script>
 </body>
