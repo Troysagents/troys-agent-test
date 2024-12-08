@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import SearchResults from './components/SearchResults';
+import SearchResults from '../components/SearchResults';
 
 export default function SearchPage() {
   const [searchResults, setSearchResults] = useState(null);
