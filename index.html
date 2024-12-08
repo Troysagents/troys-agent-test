@@ -23,6 +23,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            text-align: center; /* Center search box container */
         }
         h1 {
             color: #1a5f7a;
@@ -31,7 +32,8 @@
         }
         .search-box {
             position: relative;
-            margin-bottom: 20px;
+            margin: 0 auto; /* Center the search box */
+            max-width: 600px; /* Control width of search box */
         }
         .search-input {
             width: 100%;
@@ -41,6 +43,7 @@
             border-radius: 25px;
             outline: none;
             transition: all 0.3s;
+            box-sizing: border-box; /* Include padding in width calculation */
         }
         .search-input:focus {
             box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
@@ -55,6 +58,7 @@
             font-size: 20px;
             cursor: pointer;
             color: #3498db;
+            padding: 10px;
         }
         .results-container {
             background-color: white;
@@ -114,10 +118,6 @@
             font-size: 14px;
             color: #666;
         }
-        mark {
-            background-color: #fff3cd;
-            padding: 2px 0;
-        }
     </style>
 </head>
 <body>
@@ -142,27 +142,28 @@
         const resultsContainer = document.getElementById('resultsContainer');
         const loading = document.getElementById('loading');
         const error = document.getElementById('error');
-        let searchTimeout;
 
-        async function performSearch(query) {
-            const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Search failed');
+        async function performBraveSearch(query) {
+            try {
+                const response = await fetch(`${window.location.origin}/brave_web_search?query=${encodeURIComponent(query)}`);
+                if (!response.ok) throw new Error('Search failed');
+                return await response.json();
+            } catch (err) {
+                console.error('Search error:', err);
+                throw err;
             }
-
-            const data = await response.json();
-            return data.web.results;
         }
 
         function displayResults(results) {
             resultsContainer.innerHTML = '';
+            if (!results || results.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'search-result';
+                noResults.textContent = 'No results found.';
+                resultsContainer.appendChild(noResults);
+                return;
+            }
+
             results.forEach(result => {
                 const resultElement = document.createElement('div');
                 resultElement.className = 'search-result';
@@ -184,13 +185,22 @@
             resultsContainer.innerHTML = '';
 
             try {
-                const results = await performSearch(query);
+                const searchResults = await performBraveSearch(query);
                 loading.style.display = 'none';
-                displayResults(results);
+                displayResults(searchResults);
             } catch (err) {
                 loading.style.display = 'none';
                 error.style.display = 'block';
-                console.error('Search error:', err);
+            }
+        }
+
+        // Function to handle search query from URL
+        function handleQueryParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialQuery = urlParams.get('q');
+            if (initialQuery) {
+                searchInput.value = initialQuery;
+                startSearch();
             }
         }
 
@@ -201,13 +211,8 @@
             }
         });
 
-        // Initial search if URL contains query parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const initialQuery = urlParams.get('q');
-        if (initialQuery) {
-            searchInput.value = initialQuery;
-            startSearch();
-        }
+        // Check for initial search query in URL
+        handleQueryParam();
     });
     </script>
 </body>
