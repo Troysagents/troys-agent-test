@@ -3,223 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Troy's Enhanced Test Page</title>
+    <title>Web Search Interface</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 20px;
-            background-color: #e8f4f8;
+            background-color: #f0f5f9;
         }
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+        }
+        .search-container {
             background-color: white;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
         h1 {
             color: #1a5f7a;
             text-align: center;
-            border-bottom: 3px solid #3498db;
-            padding-bottom: 15px;
             margin-bottom: 30px;
-            font-size: 2.5em;
         }
-        h2 {
-            color: #2c3e50;
-            border-left: 5px solid #3498db;
-            padding-left: 15px;
-            margin-top: 30px;
-            font-size: 1.8em;
-        }
-        section {
-            margin: 25px 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            transition: transform 0.2s;
-        }
-        section:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .feature-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .feature-list li {
-            margin: 15px 0;
-            padding: 15px;
-            background-color: white;
-            border-left: 4px solid #3498db;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        .feature-list li:hover {
-            transform: translateX(5px);
-            border-left-width: 8px;
-        }
-        .feature-list li mark {
-            background-color: #fff3cd;
-            padding: 2px 0;
-            border-radius: 2px;
-            transition: background-color 0.3s;
-        }
-        .highlight {
-            background-color: #e3f2fd;
-            padding: 20px;
-            margin-top: 30px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .search-container {
-            margin: 20px 0;
-            text-align: center;
+        .search-box {
             position: relative;
+            margin-bottom: 20px;
         }
         .search-input {
             width: 100%;
-            max-width: 400px;
-            padding: 12px 40px 12px 20px;
+            padding: 15px 50px 15px 20px;
+            font-size: 16px;
             border: 2px solid #3498db;
             border-radius: 25px;
-            font-size: 16px;
             outline: none;
             transition: all 0.3s;
         }
         .search-input:focus {
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
         }
-        .search-icon {
+        .search-button {
             position: absolute;
-            right: 50%;
+            right: 10px;
             top: 50%;
-            transform: translate(190px, -50%);
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
             color: #3498db;
-            pointer-events: none;
         }
-        .hidden {
+        .results-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .search-result {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        .search-result:last-child {
+            border-bottom: none;
+        }
+        .search-result:hover {
+            background-color: #f8f9fa;
+        }
+        .result-title {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 8px;
+            text-decoration: none;
+        }
+        .result-title:hover {
+            text-decoration: underline;
+        }
+        .result-url {
+            color: #27ae60;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .result-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
             display: none;
         }
-        .no-results {
+        .error-message {
+            color: #e74c3c;
             text-align: center;
-            color: #666;
-            font-style: italic;
             padding: 20px;
             display: none;
-        }
-        .match-count {
-            position: absolute;
-            right: 50%;
-            top: -20px;
-            transform: translateX(200px);
-            font-size: 14px;
-            color: #666;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .match-count.visible {
-            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to Troy's Enhanced Test Page</h1>
     <div class="container">
-        <section>
-            <h2>About</h2>
-            <p>This page showcases advanced HTML structure with sophisticated CSS styling and modern design elements.</p>
-        </section>
-        <section>
-            <h2>Features</h2>
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search features..." id="searchInput">
-                <div class="search-icon">🔍</div>
-                <div class="match-count" id="matchCount"></div>
+        <div class="search-container">
+            <h1>Web Search</h1>
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Enter your search query..." id="searchInput">
+                <button class="search-button" id="searchButton">🔍</button>
             </div>
-            <ul class="feature-list" id="featureList">
-                <li>Responsive and interactive design</li>
-                <li>Modern color scheme with blue accents</li>
-                <li>Enhanced typography and spacing</li>
-                <li>Elegant hover animations</li>
-                <li>Improved visual hierarchy</li>
-                <li>Real-time search functionality</li>
-                <li>Smooth transitions and effects</li>
-                <li>Mobile-friendly layout</li>
-                <li>Intelligent search highlighting</li>
-                <li>Dynamic content filtering</li>
-            </ul>
-            <div class="no-results" id="noResults">No features found matching your search.</div>
-        </section>
-        <div class="highlight">
-            <p>This is a significantly enhanced version with animations, better spacing, and more interactive elements!</p>
         </div>
+        <div class="loading" id="loading">Searching...</div>
+        <div class="error-message" id="error">Sorry, something went wrong. Please try again.</div>
+        <div class="results-container" id="resultsContainer"></div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const featureList = document.getElementById('featureList');
-            const noResults = document.getElementById('noResults');
-            const matchCount = document.getElementById('matchCount');
-            const features = featureList.getElementsByTagName('li');
-            let originalTexts = Array.from(features).map(feature => feature.textContent);
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        let searchTimeout;
 
-            function highlightText(text, searchTerm) {
-                if (!searchTerm) return text;
-                
-                const searchTerms = searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
-                let highlightedText = text;
-                
-                searchTerms.forEach(term => {
-                    const regex = new RegExp(`(${term})`, 'gi');
-                    highlightedText = highlightedText.replace(regex, '<mark>$1</mark>');
-                });
-                
-                return highlightedText;
-            }
-
-            function updateMatchCount(count, total) {
-                if (!searchInput.value) {
-                    matchCount.classList.remove('visible');
-                    return;
-                }
-                matchCount.textContent = `${count} of ${total} matches`;
-                matchCount.classList.add('visible');
-            }
-
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                let visibleCount = 0;
-
-                Array.from(features).forEach((feature, index) => {
-                    const originalText = originalTexts[index];
-                    const text = originalText.toLowerCase();
-                    
-                    if (searchTerm === '') {
-                        feature.classList.remove('hidden');
-                        feature.innerHTML = originalText;
-                    } else {
-                        const searchTerms = searchTerm.split(' ').filter(term => term.length > 0);
-                        const matches = searchTerms.some(term => text.includes(term));
-                        
-                        if (matches) {
-                            feature.classList.remove('hidden');
-                            feature.innerHTML = highlightText(originalText, searchTerm);
-                            visibleCount++;
-                        } else {
-                            feature.classList.add('hidden');
-                        }
-                    }
-                });
-
-                noResults.style.display = visibleCount === 0 && searchTerm !== '' ? 'block' : 'none';
-                updateMatchCount(visibleCount, features.length);
+        function displayResults(results) {
+            resultsContainer.innerHTML = '';
+            results.forEach(result => {
+                const resultElement = document.createElement('div');
+                resultElement.className = 'search-result';
+                resultElement.innerHTML = `
+                    <a href="${result.url}" class="result-title" target="_blank">${result.title}</a>
+                    <span class="result-url">${result.url}</span>
+                    <p class="result-description">${result.description}</p>
+                `;
+                resultsContainer.appendChild(resultElement);
             });
+        }
+
+        function startSearch() {
+            const query = searchInput.value.trim();
+            if (query === '') return;
+
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            resultsContainer.innerHTML = '';
+
+            // Since we can't make direct API calls from the frontend,
+            // this would be where we'd make the call to a backend service
+            // For demonstration, we'll simulate results:
+            setTimeout(() => {
+                loading.style.display = 'none';
+                const demoResults = [
+                    {
+                        title: 'Search Results for: ' + query,
+                        url: 'https://example.com/result1',
+                        description: 'This is a demonstration of how the search results would appear. In a real implementation, this would show actual web results.'
+                    },
+                    {
+                        title: 'Note: Backend Integration Required',
+                        url: 'https://example.com/result2',
+                        description: 'To make this fully functional, we need to integrate with a backend service that can make the actual API calls to Brave Search.'
+                    }
+                ];
+                displayResults(demoResults);
+            }, 1000);
+        }
+
+        searchButton.addEventListener('click', startSearch);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startSearch();
+            }
         });
+    });
     </script>
 </body>
 </html>
